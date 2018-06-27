@@ -1,0 +1,6 @@
+drop-down:
+	path: 'insert path here'
+	defaults:
+			_controller: 'ircs\drop-down\Controller\DropDownController::drop'
+	requirements:
+			_permission: 'access content'
