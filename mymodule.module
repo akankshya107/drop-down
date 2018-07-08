@@ -1,0 +1,199 @@
+<?php
+
+
+function mymodule_form_user_register_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  // Modification for the form with the given form ID goes here. For example, if
+  // FORM_ID is "user_register_form" this code would run only on the user
+  // registration form.
+  //INITIAL CONFIGURATION TO REQD DATABASE AND CONNECTION
+  $host= "localhost";
+  //username sql
+  $username= "root";
+  //password of sql
+  $password= "TaniA10";
+  $connection = mysqli_connect($host,$username,$password);
+  if (!$connection) {
+      die('Could not connect: ' . mysqli_error());
+  }
+  //name of database used
+  $db_name = "statedistrict";
+  //choosing database
+  mysqli_select_db($connection, $db_name);
+$current_user = \Drupal::currentUser();
+
+$options_first = _ajax_example_get_first_dropdown_options();
+
+$form['statename'] = array(
+        '#type'=>'select',
+        '#options'=>$options_first,
+        '#required'=>TRUE,
+        '#description'=>t('State'),
+   			'#prefix' => '<div id="state" class="form-select">',
+        '#suffix' => '</div>',
+				'#default_value' => '',
+        '#validated' => 'true',
+				'#ajax' => array(
+      		'event' => 'change',
+      		'callback' => 'district_dropdown',
+      		'wrapper' => 'district',
+					'method' => 'replace',
+    		),
+);
+
+$selected ='';
+if(!empty($form_state->getValues('statename')) && $form_state->getValues('statename')!=0) {
+  $selected = $form_state->getValue('statename','default');
+  $sqlq1="SELECT DISTINCT State_Name FROM State_District_City WHERE State_code= '$selected' ";
+  $result = mysqli_query($connection, $sqlq1);
+  $row = mysqli_fetch_assoc($result);
+  $state_name = $row['State_Name'];
+  $sqlq="INSERT INTO location_state VALUES('$current_user->id()', '$state_name')";
+  $result = mysqli_query($connection, $sqlq1);
+}
+else{
+	$selected= key($options_first);
+}
+
+
+$options_second = _ajax_example_get_second_dropdown_options($selected);
+
+$form['districtname'] = array(
+    '#type' => 'select',
+    '#prefix' => '<div id="district" class="form-select">',
+    '#suffix' => '</div>',
+    '#required'=>TRUE,
+    '#description'=>t('District'),
+    '#options' => $options_second,
+    '#default_value' => '',
+    '#validated' => 'true',
+    '#ajax' => array(
+      'event' => 'change',
+      'callback' => 'city_dropdown',
+      'wrapper' => 'city',
+      'method' => 'replace',
+    ),
+  );
+
+
+  $selected ='';
+  if(!empty($form_state->getValues('districtname'))) {
+  	$selected = $form_state->getValue('districtname','default');
+  }
+  else{
+  	$selected= key($options_second);
+  }
+
+$options_third = _ajax_example_get_third_dropdown_options($selected);
+$form['cityname'] = array(
+      '#type' => 'select',
+      '#prefix' => '<div id="city" class="form-select">',
+      '#suffix' => '</div>',
+      '#required'=>TRUE,
+      '#description'=>t('City'),
+      '#options' => $options_third,
+      '#default_value' => '',
+      '#validated' => 'true',
+    );
+
+}
+
+function district_dropdown($form, $form_state) {
+  return $form['districtname'];
+}
+
+function city_dropdown($form, $form_state) {
+  return $form['cityname'];
+}
+
+
+function _ajax_example_get_first_dropdown_options() {
+//INITIAL CONFIGURATION TO REQD DATABASE AND CONNECTION
+$host= "localhost";
+//username sql
+$username= "root";
+//password of sql
+$password= "TaniA10";
+$connection = mysqli_connect($host,$username,$password);
+if (!$connection) {
+    die('Could not connect: ' . mysqli_error());
+}
+//name of database used
+$db_name = "statedistrict";
+//choosing database
+mysqli_select_db($connection, $db_name);
+//name of the tale to be used
+$table_name = "State_District_City";
+//Select states from dbs
+$sql = "SELECT DISTINCT State_Name, State_code FROM State_District_City ORDER BY State_Name ASC";
+$results = mysqli_query($connection, $sql);
+$options = array();
+$options[0]='Select';
+while ($row = mysqli_fetch_assoc($results)) {
+$options[$row['State_code']] = $row['State_Name'];
+//echo $row['State_code'];
+  }
+    return $options;
+}
+
+
+function _ajax_example_get_second_dropdown_options($key) {
+//INITIAL CONFIGURATION TO REQD DATABASE AND CONNECTION
+$host= "localhost";
+//username sql
+$username= "root";
+//password of sql
+$password= "TaniA10";
+$connection = mysqli_connect($host,$username,$password);
+if (!$connection) {
+    die('Could not connect: ' . mysqli_error());
+}
+//name of database used
+$db_name = "statedistrict";
+//choosing database
+mysqli_select_db($connection, $db_name);
+//name of the tale to be used
+$table_name = "State_District_City";
+//Select states from dbs
+$sql = "SELECT DISTINCT District_Name, District_Code FROM State_District_City where State_code='$key'";
+$results = mysqli_query($connection, $sql);
+$options = array();
+$options[0]='Select';
+while ($row = mysqli_fetch_assoc($results)) {
+$options[$row['District_Code']] = $row['District_Name'];
+  }
+
+
+return $options;
+
+
+}
+
+function _ajax_example_get_third_dropdown_options($key) {
+//INITIAL CONFIGURATION TO REQD DATABASE AND CONNECTION
+$host= "localhost";
+//username sql
+$username= "root";
+//password of sql
+$password= "TaniA10";
+$connection = mysqli_connect($host,$username,$password);
+if (!$connection) {
+    die('Could not connect: ' . mysqli_error());
+}
+//name of database used
+$db_name = "statedistrict";
+//choosing database
+mysqli_select_db($connection, $db_name);
+//name of the tale to be used
+$table_name = "State_District_City";
+//Select states from dbs
+$sql = "SELECT DISTINCT City_Name, City_Code FROM State_District_City where District_Code='$key'";
+$results = mysqli_query($connection, $sql);
+$options = array();
+$options[0]='Select';
+while ($row = mysqli_fetch_assoc($results)) {
+$options[$row['City_Code']] = $row['City_Name'];
+  }
+return $options;
+}
+
+?>

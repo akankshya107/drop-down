@@ -1,0 +1,5 @@
+name: mymodule
+description: Modification in user registration form.
+package: Custom
+type: module
+core: 8.x
