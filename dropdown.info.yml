@@ -1,5 +1,0 @@
-name: Drop Down
-type: module
-description: create drop down list of state, city and district
-package: Custom
-core: 8.x
