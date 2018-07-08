@@ -19,7 +19,6 @@ function mymodule_form_user_register_form_alter(&$form, \Drupal\Core\Form\FormSt
   $db_name = "statedistrict";
   //choosing database
   mysqli_select_db($connection, $db_name);
-$current_user = \Drupal::currentUser();
 
 $options_first = _ajax_example_get_first_dropdown_options();
 
@@ -41,14 +40,8 @@ $form['statename'] = array(
 );
 
 $selected ='';
-if(!empty($form_state->getValues('statename')) && $form_state->getValues('statename')!=0) {
+if(!empty($form_state->getValues('statename'))) {
   $selected = $form_state->getValue('statename','default');
-  $sqlq1="SELECT DISTINCT State_Name FROM State_District_City WHERE State_code= '$selected' ";
-  $result = mysqli_query($connection, $sqlq1);
-  $row = mysqli_fetch_assoc($result);
-  $state_name = $row['State_Name'];
-  $sqlq="INSERT INTO location_state VALUES('$current_user->id()', '$state_name')";
-  $result = mysqli_query($connection, $sqlq1);
 }
 else{
 	$selected= key($options_first);
